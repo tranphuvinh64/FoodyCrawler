@@ -13,8 +13,9 @@ def getAllLinks():
 
 def getCrawledLinks():
     links = []
-    with open("crawled", "r") as f:
+    with open("crawled.txt", "r") as f:
         for line in f:
+            line = line.strip()
             link = line.split("|")[1]
             links.append(link)
     return links
@@ -24,6 +25,7 @@ def getLinksToCrawl():
 
 class Crawler(scrapy.Spider):
     name = 'all'
+    # start_urls = getLinksToCrawl()
     start_urls = getLinksToCrawl()
 
     def parse(self, response):
@@ -33,21 +35,27 @@ class Crawler(scrapy.Spider):
         xpath_quanhuyen = "//div[@class='res-common-add']//span/a/span[@itemprop ='addressLocality']/text()"
         xpath_infos = "//div[@class='new-detail-info-area']" # to get length
         ten = response.xpath(xpath_ten).extract_first()
+        if ten is None:
+            ten = "None"
         duong = response.xpath(xpath_duong).extract_first()
+        if duong is None:
+            duong = "None"
         quanhuyen = response.xpath(xpath_quanhuyen).extract_first()
+        if quanhuyen is None:
+            quanhuyen = "None"
         infos = response.xpath(xpath_infos)
 
         seperate = '|'
-        thoigianhoatdong = ''
-        thoigianthichhop = ''
-        thoigianchuanbi = ''
-        nghile = ''
-        theloai = ''
-        succhua = ''
-        phongcach = ''
-        phuhop = ''
-        phucvucacmon = ''
-        dacdiem = ''
+        thoigianhoatdong = 'None'
+        thoigianthichhop = 'None'
+        thoigianchuanbi = 'None'
+        nghile = 'None'
+        theloai = 'None'
+        succhua = 'None'
+        phongcach = 'None'
+        phuhop = 'None'
+        phucvucacmon = 'None'
+        dacdiem = 'None'
         for i in range(1,len(infos) + 1):
             xpath_info_name = f"//div[@class='new-detail-info-area'][{i}]/div[1]/text()"
             info_name = response.xpath(xpath_info_name).extract_first()
@@ -66,9 +74,10 @@ class Crawler(scrapy.Spider):
             if info_name.find("thích hợp") != -1:    
                 xpath_info = f"//div[@class='new-detail-info-area'][{i}]/div[2]/a/text()"
                 lst_thichhop = response.xpath(xpath_info).extract()
-                for el in lst_thichhop:
-                    thoigianthichhop = thoigianthichhop + str(el) + ' '
-                thoigianthichhop = thoigianthichhop.strip()
+                if isinstance(lst_thichhop, list):
+                    for el in lst_thichhop:
+                        thoigianthichhop = thoigianthichhop + str(el) + ','
+                    thoigianthichhop = thoigianthichhop.strip()
 
 
             if info_name.find("chuẩn bị") != -1:
@@ -115,22 +124,25 @@ class Crawler(scrapy.Spider):
             if info_name.find("phù hợp") != -1:
                 xpath_info = f"//div[@class='new-detail-info-area'][{i}]/div[2]/a/text()"
                 lst_phuhop = response.xpath(xpath_info).extract()
-                for el in lst_phuhop:
-                    phuhop = phuhop + str(el) + ' '
-                phuhop = phuhop.strip()
+                if isinstance(lst_phuhop,list):
+                    for el in lst_phuhop:
+                        phuhop = phuhop + str(el) + ','
+                    phuhop = phuhop.strip()
 
             if info_name.find("phục vụ") != -1:
                 xpath_info = f"//div[@class='new-detail-info-area'][{i}]/div[2]/a/text()"
                 lst_mon = response.xpath(xpath_info).extract()
-                for el in lst_mon:
-                    phucvucacmon = phucvucacmon + str(el) + ' '
-                phucvucacmon = phucvucacmon.strip()
+                if isinstance(lst_mon,list):
+                    for el in lst_mon:
+                        phucvucacmon = phucvucacmon + str(el) + ','
+                    phucvucacmon = phucvucacmon.strip()
 
         xpath_dacdiem = "//ul[@class ='micro-property']/li[not(@class='none')]/a/text()"
         lst_dacdiem = response.xpath(xpath_dacdiem).extract()
-        for el in lst_dacdiem:
-            dacdiem = dacdiem + str(el) + ' ' 
-        dacdiem = dacdiem.strip()
+        if isinstance(lst_dacdiem,list):
+            for el in lst_dacdiem:
+                dacdiem = dacdiem + str(el) + ',' 
+            dacdiem = dacdiem.strip()
 
         now = datetime.now().strftime("%y-%m-%d %H-%M-%s")
         with open("crawled.txt","a+") as f:

@@ -51,6 +51,17 @@ DOWNLOAD_DELAY = 0
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
+DOWNLOADER_MIDDLEWARES = {
+    'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
+}
+
+ROTATING_PROXY_LIST = [
+    'proxy1.com:8000',
+    'proxy2.com:8031',
+    # ...
+]
+
+
 #DOWNLOADER_MIDDLEWARES = {
 #    'FoodyCrawler.middlewares.FoodycrawlerDownloaderMiddleware': 543,
 #}
