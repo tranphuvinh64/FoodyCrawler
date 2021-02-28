@@ -6,26 +6,38 @@ from datetime import datetime
 
 def getAllLinks():
     links = []
-    with open("crawlLinks.txt","r") as f:
-        for line in f:
-            links.append(line.strip())
+    if os.path.isfile("FoodyStoreLinks.txt"):
+        with open("FoodyStoreLinks.txt","r") as f:
+            for line in f:
+                links.append(line.strip())
     return links
 
 def getCrawledLinks():
     links = []
-    with open("crawled.txt", "r") as f:
-        for line in f:
-            line = line.strip()
-            link = line.split("|")[1]
-            links.append(link)
+    if os.path.isfile("CrawledData.txt"):
+        with open("CrawledData.txt", "r") as f:
+            for line in f:
+                line = line.strip()
+                link = line.split("|")[1]
+                links.append(link)
+    else:
+        with open("CrawledData.txt", "a+") as f:
+            pass
     return links
 
 def getLinksToCrawl():
-    return list(set(getAllLinks()) - set(getCrawledLinks()))
+    result = list(set(getAllLinks()) - set(getCrawledLinks()))
+    return result
+
+if __name__ == '__main__':
+    temp1 = set(getAllLinks())
+    temp2 = set(getCrawledLinks())
+    print(len(temp1))
+    print(len(temp2))
+    print(temp1 - temp2)
 
 class Crawler(scrapy.Spider):
     name = 'all'
-    # start_urls = getLinksToCrawl()
     start_urls = getLinksToCrawl()
 
     def parse(self, response):
@@ -46,16 +58,16 @@ class Crawler(scrapy.Spider):
         infos = response.xpath(xpath_infos)
 
         seperate = '|'
-        thoigianhoatdong = 'None'
-        thoigianthichhop = 'None'
-        thoigianchuanbi = 'None'
-        nghile = 'None'
-        theloai = 'None'
-        succhua = 'None'
-        phongcach = 'None'
-        phuhop = 'None'
-        phucvucacmon = 'None'
-        dacdiem = 'None'
+        thoigianhoatdong = "None"
+        thoigianthichhop = "None"
+        thoigianchuanbi = "None"
+        nghile = "None"
+        theloai = "None"
+        succhua = "None"
+        phongcach = "None"
+        phuhop = "None"
+        phucvucacmon = "None"
+        dacdiem = "None"
         for i in range(1,len(infos) + 1):
             xpath_info_name = f"//div[@class='new-detail-info-area'][{i}]/div[1]/text()"
             info_name = response.xpath(xpath_info_name).extract_first()
@@ -68,13 +80,14 @@ class Crawler(scrapy.Spider):
                 if isinstance(thoigianhoatdong, str):
                     thoigianhoatdong = thoigianhoatdong.strip()
                 if thoigianhoatdong is None:
-                    thoigianhoatdong = 'None'
+                    thoigianhoatdong = "None"
 
 
             if info_name.find("thích hợp") != -1:    
                 xpath_info = f"//div[@class='new-detail-info-area'][{i}]/div[2]/a/text()"
                 lst_thichhop = response.xpath(xpath_info).extract()
                 if isinstance(lst_thichhop, list):
+                    thoigianthichhop  = ""
                     for el in lst_thichhop:
                         thoigianthichhop = thoigianthichhop + str(el) + ','
                     thoigianthichhop = thoigianthichhop.strip()
@@ -86,7 +99,7 @@ class Crawler(scrapy.Spider):
                 if isinstance(thoigianchuanbi, str):
                     thoigianchuanbi = thoigianchuanbi.strip()
                 if thoigianchuanbi is None:
-                    thoigianchuanbi = 'None'
+                    thoigianchuanbi = "None"
             
             if info_name.find("nghỉ lễ") != -1:
                 xpath_info = f"//div[@class='new-detail-info-area'][{i}]/div[2]/span[1]/text()"
@@ -94,7 +107,7 @@ class Crawler(scrapy.Spider):
                 if isinstance(nghile, str):
                     nghile = nghile.strip()
                 if nghile is None:
-                    nghile = 'None'
+                    nghile = "None"
             
             if info_name.find("thể loại") != -1:
                 xpath_info = f"//div[@class='new-detail-info-area'][{i}]/div[2]/a/text()"
@@ -102,7 +115,7 @@ class Crawler(scrapy.Spider):
                 if isinstance(theloai, str):
                     theloai = theloai.strip()
                 if theloai is None:
-                    theloai = 'None'
+                    theloai = "None"
             
 
             if info_name.find("sức chứa") != -1:
@@ -111,7 +124,7 @@ class Crawler(scrapy.Spider):
                 if isinstance(succhua, str):
                     succhua = succhua.strip()
                 if succhua is None:
-                    succhua = 'None'
+                    succhua = "None"
 
             if info_name.find("phong cách") != -1:
                 xpath_info = f"//div[@class='new-detail-info-area'][{i}]/div[2]/a/text()"
@@ -119,12 +132,13 @@ class Crawler(scrapy.Spider):
                 if isinstance(phongcach, str):
                     phongcach = phongcach.strip()
                 if phongcach is None:
-                    phongcach = 'None'
+                    phongcach = "None"
 
             if info_name.find("phù hợp") != -1:
                 xpath_info = f"//div[@class='new-detail-info-area'][{i}]/div[2]/a/text()"
                 lst_phuhop = response.xpath(xpath_info).extract()
                 if isinstance(lst_phuhop,list):
+                    phuhop = ""
                     for el in lst_phuhop:
                         phuhop = phuhop + str(el) + ','
                     phuhop = phuhop.strip()
@@ -133,6 +147,7 @@ class Crawler(scrapy.Spider):
                 xpath_info = f"//div[@class='new-detail-info-area'][{i}]/div[2]/a/text()"
                 lst_mon = response.xpath(xpath_info).extract()
                 if isinstance(lst_mon,list):
+                    phucvucacmon = ""
                     for el in lst_mon:
                         phucvucacmon = phucvucacmon + str(el) + ','
                     phucvucacmon = phucvucacmon.strip()
@@ -140,39 +155,54 @@ class Crawler(scrapy.Spider):
         xpath_dacdiem = "//ul[@class ='micro-property']/li[not(@class='none')]/a/text()"
         lst_dacdiem = response.xpath(xpath_dacdiem).extract()
         if isinstance(lst_dacdiem,list):
+            dacdiem = ""
             for el in lst_dacdiem:
                 dacdiem = dacdiem + str(el) + ',' 
             dacdiem = dacdiem.strip()
 
         now = datetime.now().strftime("%y-%m-%d %H-%M-%s")
-        with open("crawled.txt","a+") as f:
+        with open("CrawledData.txt","a+") as f:
             f.write(now)
             f.write(seperate)
-            f.write(link)
+
+            f.write(link.replace(seperate,"/"))
             f.write(seperate)
-            f.write(ten)
+
+            f.write(ten.replace(seperate,"/"))
             f.write(seperate)
-            f.write(duong)
+
+            f.write(duong.replace(seperate,"/"))
             f.write(seperate)
-            f.write(quanhuyen)
+
+            f.write(quanhuyen.replace(seperate,"/"))
             f.write(seperate)
-            f.write(thoigianhoatdong)
+
+            f.write(thoigianhoatdong.replace(seperate,"/"))
             f.write(seperate)
-            f.write(thoigianthichhop)
+
+            f.write(thoigianthichhop.replace(seperate,"/"))
             f.write(seperate)
-            f.write(thoigianchuanbi)
+
+            f.write(thoigianchuanbi.replace(seperate,"/"))
             f.write(seperate)
-            f.write(nghile)
+
+            f.write(nghile.replace(seperate,"/"))
             f.write(seperate)
-            f.write(theloai)
+
+            f.write(theloai.replace(seperate,"/"))
             f.write(seperate)
-            f.write(succhua)
+
+            f.write(succhua.replace(seperate,"/"))
             f.write(seperate)
-            f.write(phongcach)
+
+            f.write(phongcach.replace(seperate,"/"))
             f.write(seperate)
-            f.write(phuhop)
+
+            f.write(phuhop.replace(seperate,"/"))
             f.write(seperate)
-            f.write(phucvucacmon)
+
+            f.write(phucvucacmon.replace(seperate,"/"))
             f.write(seperate)
-            f.write(dacdiem)
+            
+            f.write(dacdiem.replace(seperate,"/"))
             f.write("\n")
