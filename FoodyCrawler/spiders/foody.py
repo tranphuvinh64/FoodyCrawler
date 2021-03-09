@@ -12,6 +12,14 @@ def getAllLinks():
                 links.append(line.strip())
     return links
 
+def getLinksFromFile(name):
+    result = []
+    with open(name,"r") as f:
+        for line in f:
+            line = line.strip()
+            result.append(line)
+    return result
+
 def getCrawledLinks():
     links = []
     if os.path.isfile("CrawledData.txt"):
@@ -38,7 +46,8 @@ if __name__ == '__main__':
 
 class Crawler(scrapy.Spider):
     name = 'all'
-    start_urls = getLinksToCrawl()
+    # start_urls = getLinksToCrawl()
+    start_urls = getLinksFromFile("huyen-cu-chi.txt")
 
     def parse(self, response):
         link = response.url 
